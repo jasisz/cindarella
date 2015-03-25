@@ -62,15 +62,21 @@ class Variant(MPTTModel):
         )
         mutated_options = []
         options = list(self.options.all())
+        attributes = list(self.story.attributes.all())
 
-        for i in range(random.randint(self.story.min_mutations, self.story.max_mutations)):
-            change_option = random.choice(options)
-            options.remove(change_option)
-            choose_from = list(change_option.attribute.options.all())
-            choose_from.remove(change_option)
-            mutated_options.append(random.choice(choose_from))
+        if len(options) > self.story.max_mutations:
+            for i in range(random.randint(self.story.min_mutations, self.story.max_mutations)):
+                change_option = random.choice(options)
+                options.remove(change_option)
+                choose_from = list(change_option.attribute.options.all())
+                choose_from.remove(change_option)
+                mutated_options.append(random.choice(choose_from))
 
         all_options = mutated_options + options
+        # this is for attributes that were not in parent story (possible new ones)
+        used_attributes = [option.attribute for option in all_options]
+        all_options += [random.choice(attribute.options.all()) for attribute in attributes if attribute not in used_attributes]
+
         child.options_dict = {option.attribute.name: option.text for option in all_options}
         child.hash = child.calculate_hash()
 
