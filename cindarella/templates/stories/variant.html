@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ variant.story.title }}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="large-12 columns">
+      <h1>{{ variant.story.title }}</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <div class="panel">
+        {{ variant.get_text }}
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <h3>Share this story!</h3>
+      <p>
+        You can become storyteller as simply as by sharing this link.
+        Each person visiting it will see custom story, made of your story as parent and some mutations.
+      </p>
+    </div>
+  </div>
+{% endblock %}

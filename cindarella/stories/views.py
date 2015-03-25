@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from django.views.generic.detail import DetailView
+from .models import Variant
 
-# Create your views here.
+
+class VariantView(DetailView):
+    model = Variant
+    context_object_name = 'variant'
+    template_name = 'stories/variant.html'
