@@ -19,12 +19,28 @@
     <div class="large-12 columns">
       <h3>Share this story!</h3>
       <p>
-        You can become storyteller as simply as by sharing this link.
-        Each person visiting it will see custom story, made of your story as parent and some mutations.
+        If you lake this custom variant of the story you can become storyteller by simply sharing this link.<br/>
+        Each person visiting it will see a new story variant, based on yours and some mutations.
       </p>
     </div>
+    <div class="large-7 columns">
+      <label>Link to share</label>
+      <input type="text" value="{{ share_link }}">
+    </div>
+    <div class="large-5 columns">
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_link }}&t={{ variant.story.title }}"
+         onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
+         target="_blank" class="small radius button" style="background: #30468a">
+        Share on Facebook
+      </a>
+      <a href="https://twitter.com/share?url={{ share_link }}&text=Mutate my {{ variant.story.title }} story"
+        onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
+        target="_blank" class="small radius button" style="background: #4a9ced">
+        Share on Twitter
+      </a>
+    </div>
     <div class="large-12 columns">
-      <input type="text" value="http://{{ request.get_host }}{% url 'stories:mutate' story_pk=variant.story_id pk=variant.hash %}">
+      <a href="{% url 'home' %}">Read more about Cindarella project</a>
     </div>
   </div>
 {% endblock %}

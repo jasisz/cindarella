@@ -87,7 +87,7 @@ class Variant(MPTTModel):
         return template.render(context)
 
     def calculate_hash(self):
-        return hashlib.sha256(self.get_text().encode('ascii')).hexdigest()
+        return hashlib.md5(self.get_text().encode('ascii')).hexdigest()
 
     def save(self, *args, **kwargs):
         if not self.hash:
@@ -97,6 +97,15 @@ class Variant(MPTTModel):
     def get_absolute_url(self):
         return reverse(
             'stories:variant',
+            kwargs={
+                'story_pk': self.story_id,
+                'pk': self.hash,
+            }
+        )
+
+    def get_share_url(self):
+        return reverse(
+            'share',
             kwargs={
                 'story_pk': self.story_id,
                 'pk': self.hash,
