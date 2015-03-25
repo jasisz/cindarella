@@ -23,5 +23,8 @@
         Each person visiting it will see custom story, made of your story as parent and some mutations.
       </p>
     </div>
+    <div class="large-12 columns">
+      <input type="text" value="http://{{ request.get_host }}{% url 'stories:mutate' story_pk=variant.story_id pk=variant.hash %}">
+    </div>
   </div>
 {% endblock %}

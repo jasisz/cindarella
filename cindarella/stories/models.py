@@ -1,4 +1,5 @@
 import hashlib
+import random
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template import Context, Template
@@ -9,12 +10,11 @@ from jsonfield import JSONField
 class Story(models.Model):
     title = models.CharField(max_length=500, null=False, blank=False)
     template = models.TextField(null=False, blank=False)
+    max_mutations = models.IntegerField(null=False, blank=False)
+    min_mutations = models.IntegerField(null=False, blank=False, default=1)
 
     class Meta:
         verbose_name_plural = 'stories'
-
-    def get_template(self):
-        return Template(self.template)
 
     def __str__(self):
         return self.title
@@ -44,20 +44,54 @@ class Variant(MPTTModel):
     story = models.ForeignKey(Story, null=False, blank=False)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
     options = models.ManyToManyField(Option, related_name='variants')
-    # denormalized options, not to change story already saved, when options changes
+    # denormalized fields, not to change variant already saved, when something changes in template or options
+    template = models.TextField(null=False, blank=False)
     options_dict = JSONField(default='{}')
 
     def __str__(self):
         return '{0} | {1}'.format(self.story.title, self.hash)
 
+    def get_template(self):
+        return Template(self.template)
+
+    def mutate(self):
+        child = Variant(
+            parent=self,
+            story=self.story,
+            template=self.story.template,
+        )
+        mutated_options = []
+        options = list(self.options.all())
+
+        for i in range(random.randint(self.story.min_mutations, self.story.max_mutations)):
+            change_option = random.choice(options)
+            options.remove(change_option)
+            choose_from = list(change_option.attribute.options.all())
+            choose_from.remove(change_option)
+            mutated_options.append(random.choice(choose_from))
+
+        all_options = mutated_options + options
+        child.options_dict = {option.attribute.name: option.text for option in all_options}
+        child.hash = child.calculate_hash()
+
+        try:
+            return Variant.objects.get(story=self.story, hash=child.hash)
+        except Variant.DoesNotExist:
+            child.save()
+            child.options.add(*all_options)
+            return child
+
     def get_text(self):
         context = Context(self.options_dict)
-        template = self.story.get_template()
+        template = self.get_template()
         return template.render(context)
+
+    def calculate_hash(self):
+        return hashlib.sha256(self.get_text().encode('ascii')).hexdigest()
 
     def save(self, *args, **kwargs):
         if not self.hash:
-            self.hash = hashlib.sha256(self.get_text().encode('ascii')).hexdigest()
+            self.hash = self.calculate_hash()
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -65,6 +99,6 @@ class Variant(MPTTModel):
             'stories:variant',
             kwargs={
                 'story_pk': self.story_id,
-                'hash': self.hash,
+                'pk': self.hash,
             }
         )
