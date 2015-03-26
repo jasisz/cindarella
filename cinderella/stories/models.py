@@ -92,7 +92,7 @@ class Variant(MPTTModel):
         context = Context(self.options_dict)
         template = self.get_template()
         text = template.render(context)
-        return bleach.clean(text)
+        return bleach.clean(text, tags=['p', 'br', 'em', 'strong'])
 
     def calculate_hash(self):
         return hashlib.md5(self.get_text().encode('ascii')).hexdigest()

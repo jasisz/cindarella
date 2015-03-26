@@ -11,7 +11,9 @@
   <div class="row">
     <div class="large-12 columns">
       <div class="panel">
-        {{ variant.get_text|safe }}
+        {% autoescape off %}
+        {{ variant.get_text }}
+        {% endautoescape %}
       </div>
     </div>
   </div>
