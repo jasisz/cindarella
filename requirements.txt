@@ -2,3 +2,4 @@ Django==1.8c1
 git+git://github.com/django-mptt/django-mptt.git@cdc6a6a03600fd551ce8eeb8678c51e8c2644e35
 jsonfield==1.0.3
 psycopg2==2.6
+bleach==1.4.1

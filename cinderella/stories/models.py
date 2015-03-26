@@ -1,5 +1,6 @@
 import hashlib
 import random
+import bleach
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template import Context, Template
@@ -90,7 +91,8 @@ class Variant(MPTTModel):
     def get_text(self):
         context = Context(self.options_dict)
         template = self.get_template()
-        return template.render(context)
+        text = template.render(context)
+        return bleach.clean(text)
 
     def calculate_hash(self):
         return hashlib.md5(self.get_text().encode('ascii')).hexdigest()
