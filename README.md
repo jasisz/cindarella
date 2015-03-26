@@ -1,4 +1,4 @@
-# cindarella
+# cinderella
 Self evolving story experiment.
 
 Simple django project allowing to create story with template and number of features with multiple possible values.

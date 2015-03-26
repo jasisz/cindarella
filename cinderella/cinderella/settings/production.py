@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['cindarella.io']
+ALLOWED_HOSTS = ['cinderella.io']
 
 DATABASES = {
     'default': {
