@@ -32,11 +32,11 @@ class Attribute(models.Model):
 
 
 class Option(models.Model):
-    text = models.TextField(null=True, blank=True)
+    body = JSONField(null=True, blank=True, default='{}')
     attribute = models.ForeignKey(Attribute, null=False, blank=False, related_name='options')
 
     def __str__(self):
-        return '{0} | {1} | {2}'.format(self.attribute.story.title, self.attribute.name, self.text)
+        return '{0} | {1} | {2}'.format(self.attribute.story.title, self.attribute.name, self.body)
 
 
 class Variant(MPTTModel):
@@ -77,7 +77,7 @@ class Variant(MPTTModel):
         used_attributes = [option.attribute for option in all_options]
         all_options += [random.choice(attribute.options.all()) for attribute in attributes if attribute not in used_attributes]
 
-        child.options_dict = {option.attribute.name: option.text for option in all_options}
+        child.options_dict = {option.attribute.name: option.body for option in all_options}
         child.hash = child.calculate_hash()
 
         try:
