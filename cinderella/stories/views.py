@@ -11,7 +11,13 @@ class VariantView(DetailView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        context_data['share_link'] = 'http://{0}{1}'.format(self.request.get_host(), self.object.get_share_url())
+        variant = self.object
+        context_data.update({
+            'step': variant.get_ancestors().count(),
+            'descendants_count': variant.get_descendant_count(),
+            'children': variant.get_children(),
+            'share_link': 'http://{0}{1}'.format(self.request.get_host(), variant.get_share_url()),
+        })
         return context_data
 
 
