@@ -53,7 +53,7 @@
       <p>This story has {{ descendants_count }} descendant stories at all.<br/>
         Only stories directly made from this one are shown below.</p>
       <ul>{% for child in children %}
-        <li><a href="{{ child.get_absolute_url }}">Variant {{ forloop.counter }}</a></li>
+        <li><a href="{{ child.get_absolute_url }}">Variant {{ forloop.counter }} ({{ variant.hash }})</a></li>
       {% empty %}
         <li>No child stories, share the link!</li>
       {% endfor %}</ul>
