@@ -17,6 +17,29 @@ class Story(models.Model):
     class Meta:
         verbose_name_plural = 'stories'
 
+    def serialize(self):
+        return {
+            'title': self.title,
+            'template': self.template,
+            'min_mutations': self.min_mutations,
+            'max_mutations': self.min_mutations,
+            'attributes': [attribute.serialize() for attribute in self.attributes.prefetch_related('options').all()],
+        }
+
+    @classmethod
+    def deserialize(cls, serialized_story):
+        story = Story()
+        story.title = serialized_story['title']
+        story.template = serialized_story['template']
+        story.min_mutations = serialized_story['min_mutations']
+        story.max_mutations = serialized_story['max_mutations']
+        story.save()
+        for serialized_attribute in serialized_story['attributes']:
+            attribute = story.attributes.create(story=story, name=serialized_attribute['name'])
+            for option in serialized_attribute['options']:
+                attribute.options.create(attribute=attribute, body=option)
+
+
     def __str__(self):
         return self.title
 
@@ -28,6 +51,12 @@ class Attribute(models.Model):
     class Meta:
         unique_together = ('name', 'story')
 
+    def serialize(self):
+        return {
+            'name': self.name,
+            'options': [option.serialize() for option in self.options.all()],
+        }
+
     def __str__(self):
         return '{0} | {1}'.format(self.story.title, self.name)
 
@@ -35,6 +64,9 @@ class Attribute(models.Model):
 class Option(models.Model):
     body = JSONField(null=True, blank=True, default='{}')
     attribute = models.ForeignKey(Attribute, null=False, blank=False, related_name='options')
+
+    def serialize(self):
+        return self.body
 
     def __str__(self):
         return '{0} | {1} | {2}'.format(self.attribute.story.title, self.attribute.name, self.body)
@@ -51,6 +83,19 @@ class Variant(MPTTModel):
 
     def __str__(self):
         return '{0} | {1}'.format(self.story.title, self.hash)
+
+    def serialize(self):
+        return {
+            'hash': self.hash,
+            'selected_attributes': [
+                {
+                    'name': option.attribute.name,
+                    'body': option.body
+                } for option in self.options.prefetch_related('attribute').all()
+            ],
+            'template': self.template,
+            'text': self.get_text(),
+        }
 
     def get_template(self):
         return Template(self.template)
